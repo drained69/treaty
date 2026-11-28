@@ -1,9 +1,9 @@
 import { readFile } from 'node:fs/promises';
 import { createPublicClient, createWalletClient, defineChain, hexToBytes, http } from 'viem';
 import { bech32 } from '@scure/base';
-import { NATIVE_REST, RECEIPTS } from '../server/native.mjs';
+import { NATIVE_REST, RECEIPTS } from '../server/native.js';
 import { privateKeyToAccount } from 'viem/accounts';
-import { registeredKey } from '../sdk/pqc.mjs';
+import { registeredKey } from '../sdk/pqc.js';
 
 const key = process.env.DIANA_DEPLOYER_KEY;
 if (!/^0x[\da-f]{64}$/i.test(key ?? '')) {

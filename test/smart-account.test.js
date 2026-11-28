@@ -10,7 +10,7 @@ import { encodeFunctionData, parseEther, toFunctionSelector } from 'viem';
 import {
   SESSION_PERMISSIONS, accountForms, describeCall, executionOutcome, generateSessionKey, linkSessionMsgs,
   revokeSessionMsg, sessionCall, sessionKey, sessionRule, treatyCallPolicy,
-} from '../sdk/smart-account.mjs';
+} from '../sdk/smart-account.js';
 
 const { abi } = JSON.parse(await readFile(new URL('../artifacts/Treaty.json', import.meta.url)));
 const CONTRACT = '0xDfc61ec824205AEF7f2FC80FaD5DBC2Cc987D0a6';

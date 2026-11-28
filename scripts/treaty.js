@@ -1,4 +1,4 @@
-// Treaty signing tool for people (agents use sdk/treaty.mjs directly).
+// Treaty signing tool for people (agents use sdk/treaty.js directly).
 // Run with: npm run pq -- <command>. Keys come from .env (see .env.example).
 import { readFile, writeFile } from 'node:fs/promises';
 import { createInterface } from 'node:readline/promises';
@@ -6,7 +6,7 @@ import { generatePqcKeypair, pqcSign } from '@qorechain/sdk';
 import { getAddress, hexToBytes, isAddress, parseEther, toHex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { deliverableHash } from '../src/protocol.js';
-import { Treaty, abi, explain, qor } from '../sdk/treaty.mjs';
+import { Treaty, abi, explain, qor } from '../sdk/treaty.js';
 
 const HELP = `Usage: npm run pq -- <command> [options]
 

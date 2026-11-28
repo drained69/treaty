@@ -6,7 +6,7 @@
 //                              with the accounts from `npm run accounts`; every transaction is saved
 //                              to deployments/runs/treaty-<id>.json (one file per run)
 //
-// Locally, everything runs on the Diana stand-in (scripts/local-diana.mjs): a chain with ID 9800
+// Locally, everything runs on the Diana stand-in (scripts/local-diana.js): a chain with ID 9800
 // whose ML-DSA-87 checks are backed by real ML-DSA-87 verification. On Diana, the chain's own
 // pqcVerify and pqcKeyStatus precompiles and the Cross-VM bridge do the work, and each party acts
 // through its own scoped EVM window. Every party has its own keys and acts only through the
@@ -19,8 +19,8 @@ import { generateMnemonic, generatePqcKeypair, pqcSign } from '@qorechain/sdk';
 import { hexToBytes, isAddress, parseEther, toHex } from 'viem';
 import { privateKeyToAccount } from 'viem/accounts';
 import { deliverableHash } from '../src/protocol.js';
-import { Treaty, abi, explain, qor } from '../sdk/treaty.mjs';
-import { loadSigner } from '../sdk/pqc.mjs';
+import { Treaty, abi, explain, qor } from '../sdk/treaty.js';
+import { loadSigner } from '../sdk/pqc.js';
 
 const live = process.argv.includes('--diana');
 const serve = !live && process.argv.includes('--serve');
@@ -44,7 +44,7 @@ class Agent {
 
 /** Where the story runs: the local stand-in, or Diana itself. */
 async function localNetwork() {
-  const { startDiana } = await import('../scripts/local-diana.mjs');
+  const { startDiana } = await import('../scripts/local-diana.js');
   const diana = await startDiana({ abi });
   const hash = await diana.wallet.deployContract({ account: diana.accounts[0], abi, bytecode: artifact.bytecode, args: ['qorechain-diana'] });
   const contract = (await diana.client.waitForTransactionReceipt({ hash })).contractAddress;

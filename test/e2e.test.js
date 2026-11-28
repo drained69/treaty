@@ -19,8 +19,8 @@ import { privateKeyToAccount } from 'viem/accounts';
 import {
   agreementCommitment, parseSignedRequest, paymentCommitment, paymentNote, termsNote, windowProblem,
 } from '../src/protocol.js';
-import { loadSigner } from '../sdk/pqc.mjs';
-import { qorAddressOf, startDiana } from '../scripts/local-diana.mjs';
+import { loadSigner } from '../sdk/pqc.js';
+import { qorAddressOf, startDiana } from '../scripts/local-diana.js';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
 const { abi } = JSON.parse(await readFile(new URL('../artifacts/Treaty.json', import.meta.url)));
@@ -49,7 +49,7 @@ function runNode(script, args, env) {
 
 /** Run the signing tool as a collaborator would: npm run pq -- <args>. */
 function pq(person, ...args) {
-  return runNode('scripts/treaty.mjs', args, {
+  return runNode('scripts/treaty.js', args, {
     QORE_MNEMONIC: person?.mnemonic ?? '', VITE_TREATY_ADDRESS: contract,
     QORE_EVM_RPC: diana.url, QORE_REST_URL: diana.url,
   });
@@ -101,7 +101,7 @@ before(async () => {
   // The deployer needs a registered key too: the deploy preflight checks it.
   await diana.registerKey(privateKeyToAccount(DEPLOYER_KEY).address, generatePqcKeypair().publicKey);
 
-  const deployed = await runNode('scripts/deploy.mjs', [], {
+  const deployed = await runNode('scripts/deploy.js', [], {
     DIANA_DEPLOYER_KEY: DEPLOYER_KEY, QORE_EVM_RPC: diana.url, QORE_NATIVE_REST: diana.url,
   });
   assert.equal(deployed.code, 0, deployed.output);
@@ -363,7 +363,7 @@ test('web app in a browser: revenue share and service treaty, relay, pay, verify
     });
   });
   await page.addInitScript(() => {
-    // Announces message signing, which today's QoreX does not yet; test/qorex.test.mjs checks
+    // Announces message signing, which today's QoreX does not yet; test/qorex.test.js checks
     // the same flow against the official QoreX mock.
     window.qorex = { native: {
       isQoreX: true,
@@ -617,7 +617,7 @@ test('the checkout commitment the app verifies matches the contract event', asyn
 });
 
 test('the agents demo runs start to finish', { timeout: 180_000 }, async () => {
-  const demo = await runNode('examples/agents-demo.mjs', [], {});
+  const demo = await runNode('examples/agents-demo.js', [], {});
   assert.equal(demo.code, 0, demo.output);
   for (const line of [
     /refused \(MandateLimitExceeded\)\. Olivia’s limit holds/,

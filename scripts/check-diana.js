@@ -18,10 +18,10 @@ import {
   createPublicClient, decodeAbiParameters, decodeErrorResult, defineChain, encodeFunctionData, hexToBytes, hexToString,
   http, toHex,
 } from 'viem';
-import { NATIVE_REST, RECEIPTS } from '../server/native.mjs';
+import { NATIVE_REST, RECEIPTS } from '../server/native.js';
 const { parties: { owner: { qor: OLIVIA } } } = JSON.parse(await readFile(new URL('../deployments/diana.json', import.meta.url)));
 import { termsMessage, withdrawalMessage } from '../src/protocol.js';
-import { generateSessionKey, readSmartAccount, sessionCall, sessionKey, sessionRule, treatyCallPolicy } from '../sdk/smart-account.mjs';
+import { generateSessionKey, readSmartAccount, sessionCall, sessionKey, sessionRule, treatyCallPolicy } from '../sdk/smart-account.js';
 
 const RPC = process.env.QORE_EVM_RPC?.trim() || 'https://evm-testnet.qore.host';
 const chain = defineChain({

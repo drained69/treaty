@@ -1,7 +1,7 @@
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 
 const dist = new URL('../dist/', import.meta.url);
-const source = await readFile(new URL('../server/native.mjs', import.meta.url), 'utf8');
+const source = await readFile(new URL('../server/native.js', import.meta.url), 'utf8');
 const assets = {};
 for (const file of ['index.html', ...(await readdir(new URL('assets/', dist))).map((name) => 'assets/' + name)]) {
   assets['/' + file] = await readFile(new URL(file, dist), 'utf8');

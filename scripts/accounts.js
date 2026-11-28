@@ -14,7 +14,7 @@
 //   session-status   what the chain enforces for that session, read back from Diana
 //   session-revoke   the owner switches the session key off, in one transaction
 //   seal-keys  publish each agent's ML-KEM-1024 key in QoreChain's KEM key registry, so providers
-//              can seal deliveries to it by address (QoreSeal); see sdk/seal.mjs
+//              can seal deliveries to it by address (QoreSeal); see sdk/seal.js
 //
 // Keys stay in .env.diana on this computer. Use testnet-only accounts that never held mainnet funds.
 import { spawn } from 'node:child_process';
@@ -28,9 +28,9 @@ import {
 } from '@qorechain/sdk';
 import { fetchKemKey } from '@qorechain/qoreseal/network';
 import { formatEther, getAddress, isAddress, parseEther } from 'viem';
-import { broadcast as nativeBroadcast, lookupTx } from '../sdk/native.mjs';
-import { sealKeysFor } from '../sdk/seal.mjs';
-import { generateSessionKey, linkSessionMsgs, readSmartAccount, revokeSessionMsg, sessionKey } from '../sdk/smart-account.mjs';
+import { broadcast as nativeBroadcast, lookupTx } from '../sdk/native.js';
+import { sealKeysFor } from '../sdk/seal.js';
+import { generateSessionKey, linkSessionMsgs, readSmartAccount, revokeSessionMsg, sessionKey } from '../sdk/smart-account.js';
 
 const FILE = process.env.TREATY_ACCOUNTS_FILE ? new URL('file://' + process.env.TREATY_ACCOUNTS_FILE) : new URL('../.env.diana', import.meta.url);
 const ROLES = [
@@ -165,7 +165,7 @@ const commands = {
     // The deployment sends 7M gas (Diana's RPC caps gas estimates at 5M, close to what it needs).
     const deployCost = evmWindowCost({ gas: 7_000_000n, maxFeePerGas: 300_000_000_000n });
     console.log('  ' + await openWindow(account, { allowedTargets: [], maxTxs: 2n, maxValue: deployCost * 2n, blocks: 400n }));
-    const child = spawn(process.execPath, [new URL('./deploy.mjs', import.meta.url).pathname], {
+    const child = spawn(process.execPath, [new URL('./deploy.js', import.meta.url).pathname], {
       stdio: ['ignore', 'pipe', 'inherit'], env: { ...process.env, DIANA_DEPLOYER_KEY: account.privateKey, QORE_EVM_RPC: NET.evm },
     });
     let output = '';

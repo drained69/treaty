@@ -12,7 +12,7 @@ import {
   agreementCommitment, parseSignedRequest, paymentCommitment, paymentId, paymentNote, requiredSigners,
   signedRequest, splitAmounts, termsHash, termsMessage, termsNote, withdrawalMessage,
 } from '../src/protocol.js';
-import { forgerFor, verifyLocally } from '../sdk/pqc.mjs';
+import { forgerFor, verifyLocally } from '../sdk/pqc.js';
 import { generatePqcKeypair, pqcSign } from '@qorechain/sdk';
 import { mldsa87 } from '@qorechain/pqc';
 

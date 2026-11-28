@@ -1,0 +1,12 @@
+{
+  "network": "qorechain-diana",
+  "what": "Each agent's ML-KEM-1024 seal key published in QoreChain's KEM key registry with MsgRegisterKEMKey (npm run accounts -- seal-keys), so providers can seal deliveries to it by address. Every transaction below was confirmed on Diana with code 0.",
+  "publishedAt": "2026-11-27",
+  "explorer": "https://explore.qore.network/tx/<cosmosTx> (choose Testnet at the top of the explorer first)",
+  "keys": [
+    { "role": "owner", "qor": "qor1svj82gkc7d6esyguav95anrvf3n500kz7zglfn", "cosmosTx": "5137A619E42789D579581DD2C16D5758DFB2C25AD7202E7FB7C018846A888A16", "height": 10873024 },
+    { "role": "research agent", "qor": "qor1x7xzgdtxmrj5tclr96z4thsrgqlkdwvcckayku", "cosmosTx": "C580290C5000211FC7D4217DFA9412303CCF3FA1BC197C4A4A15CF1494615803", "height": 10873035 },
+    { "role": "data agent", "qor": "qor16a6luuc9k0mxvcsptz4pu85str87me0fxptsur", "cosmosTx": "E4D9AFB93188FC62D361067C1B73B0F7D1D7D4B2A963BBF19C47581EB6B17EFB", "height": 10873047 },
+    { "role": "cleaning agent", "qor": "qor1nlfn5y6az55znp4gapzhds9uug257xz5h4yh2w", "cosmosTx": "065A818C0D3AF4F10B55A992D5AB2B8A027C9CEC64E1F6C7EAE6E284DE0685D8", "height": 10873061 }
+  ]
+}

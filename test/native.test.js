@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { nativeRead, NATIVE_REST, RECEIPTS } from '../server/native.mjs';
+import { nativeRead, NATIVE_REST, RECEIPTS } from '../server/native.js';
 
 test('hosted Native receipts use the pinned Diana receipt book', async () => {
   const result = await nativeRead(new Request('https://treaty.example/api/native/receipts/42'), async (url) => {

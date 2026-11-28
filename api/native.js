@@ -1,7 +1,7 @@
 // Vercel function: the two read-only Diana Native queries the site needs
 // (receipts and EVM windows). Diana Native REST does not allow browser
 // cross-origin requests, so the site asks this same-origin route instead.
-import { nativeRead } from '../server/native.mjs';
+import { nativeRead } from '../server/native.js';
 
 export async function GET(request) {
   const url = new URL(request.url);

@@ -3,7 +3,7 @@
 // (QoreX refuses signArbitrary), so the signatures are made here, on your computer.
 import { deriveUnifiedAccount, generatePqcKeypair, pqcSign, pqcVerify, unifiedAccountFromSeed } from '@qorechain/sdk';
 import { bytesToHex, getAddress, hexToBytes } from 'viem';
-import { sealKeysFor } from './seal.mjs';
+import { sealKeysFor } from './seal.js';
 
 export const PQC_KEYS = '0x0000000000000000000000000000000000000a02';
 export const pqcKeysAbi = [{
@@ -44,7 +44,7 @@ export async function loadSigner(env = process.env) {
     sign: (messageHex) => bytesToHex(pqcSign(account.pqc.secretKey, hexToBytes(messageHex))),
     /** The full hybrid account, for Native-lane transactions (for example relaying a smart-account call). */
     unified: account,
-    /** QoreSeal (ML-KEM-1024 + X25519) keys for private deliveries; see seal.mjs. */
+    /** QoreSeal (ML-KEM-1024 + X25519) keys for private deliveries; see seal.js. */
     sealKeys: () => sealKeysFor(mnemonic ? { mnemonic, accountIndex: index } : { privateKey: account.privateKey }),
   };
 }

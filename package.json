@@ -4,18 +4,18 @@
   "type": "module",
   "scripts": {
     "dev": "npm run compile && vite",
-    "build": "npm run compile && vite build && node scripts/build-worker.mjs",
+    "build": "npm run compile && vite build && node scripts/build-worker.js",
     "build:site": "npm run compile && vite build",
     "preview": "vite preview",
-    "compile": "node scripts/compile.mjs",
-    "test": "npm run compile && node --test test/treaty.test.mjs test/native.test.mjs test/smart-account.test.mjs test/qorex.test.mjs test/seal.test.mjs",
-    "e2e": "npm run compile && node --test test/e2e.test.mjs",
-    "demo": "npm run compile --silent && node --env-file-if-exists=.env.diana examples/agents-demo.mjs",
-    "accounts": "npm run compile --silent && node scripts/accounts.mjs",
-    "check:diana": "npm run compile --silent && node scripts/check-diana.mjs",
-    "deploy": "npm run compile && node --env-file-if-exists=.env scripts/deploy.mjs",
-    "pq": "npm run compile --silent && node --env-file-if-exists=.env scripts/treaty.mjs",
-    "demo:session": "npm run compile --silent && node --env-file-if-exists=.env.diana examples/smart-account-demo.mjs"
+    "compile": "node scripts/compile.js",
+    "test": "npm run compile && node --test test/treaty.test.js test/native.test.js test/smart-account.test.js test/qorex.test.js test/seal.test.js",
+    "e2e": "npm run compile && node --test test/e2e.test.js",
+    "demo": "npm run compile --silent && node --env-file-if-exists=.env.diana examples/agents-demo.js",
+    "accounts": "npm run compile --silent && node scripts/accounts.js",
+    "check:diana": "npm run compile --silent && node scripts/check-diana.js",
+    "deploy": "npm run compile && node --env-file-if-exists=.env scripts/deploy.js",
+    "pq": "npm run compile --silent && node --env-file-if-exists=.env scripts/treaty.js",
+    "demo:session": "npm run compile --silent && node --env-file-if-exists=.env.diana examples/smart-account-demo.js"
   },
   "dependencies": {
     "@cosmjs/stargate": "0.39.0",

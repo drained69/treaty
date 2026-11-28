@@ -18,9 +18,9 @@
 // Before running: `npm run accounts -- windows` so the research and data agents have live windows.
 import { mkdir, writeFile } from 'node:fs/promises';
 import { encodeFunctionData, erc20Abi, isAddress, maxUint256, parseEther } from 'viem';
-import { Treaty, abi, explain, qor } from '../sdk/treaty.mjs';
-import { NET, broadcast, lookupTx } from '../sdk/native.mjs';
-import { OwnerSession, generateSessionKey, linkSessionMsgs, revokeSessionMsg, sessionKey } from '../sdk/smart-account.mjs';
+import { Treaty, abi, explain, qor } from '../sdk/treaty.js';
+import { NET, broadcast, lookupTx } from '../sdk/native.js';
+import { OwnerSession, generateSessionKey, linkSessionMsgs, revokeSessionMsg, sessionKey } from '../sdk/smart-account.js';
 
 const contract = process.env.VITE_TREATY_ADDRESS;
 const step = (text) => console.log('\n' + text);

@@ -55,7 +55,7 @@ Newest first. Each ID (for example V3-7) refers to one row.
 
 ### Version 4: smart-account spending rules
 
-Scope: `sdk/smart-account.mjs` and `sdk/native.mjs` (sessions on QoreChain's abstractaccount module), the account commands, act two of the demo, the Native route `/api/native/smart-account/<qor1>`, and the statement card. The contract did not change and was not redeployed: it already accepts a budget locked by the client's owner.
+Scope: `sdk/smart-account.js` and `sdk/native.js` (sessions on QoreChain's abstractaccount module), the account commands, act two of the demo, the Native route `/api/native/smart-account/<qor1>`, and the statement card. The contract did not change and was not redeployed: it already accepts a budget locked by the client's owner.
 
 | ID | Risk | Resolution |
 | --- | --- | --- |
@@ -68,7 +68,7 @@ Scope: `sdk/smart-account.mjs` and `sdk/native.mjs` (sessions on QoreChain's abs
 
 ### Version 3.1: private deliveries and QoreX detection
 
-Scope: QoreSeal sealed deliveries (`sdk/seal.mjs`, `deliver --seal`, `open`, `accounts -- seal-keys`), QoreX detection with `@qorechain/qorex-types`, and tests against the official QoreX mock. The contract did not change, so the deployment and the live run on Diana stand.
+Scope: QoreSeal sealed deliveries (`sdk/seal.js`, `deliver --seal`, `open`, `accounts -- seal-keys`), QoreX detection with `@qorechain/qorex-types`, and tests against the official QoreX mock. The contract did not change, so the deployment and the live run on Diana stand.
 
 | ID | Risk | Resolution |
 | --- | --- | --- |

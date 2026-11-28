@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { deriveSealKeys, generateSealKeys, parseEnvelope, envelopeFromText } from '@qorechain/qoreseal';
 import { deliverableHash } from '../src/protocol.js';
-import { openDelivery, parseSealKey, sealDelivery, sealKeysFor, sealKeyText, sealRecipient } from '../sdk/seal.mjs';
+import { openDelivery, parseSealKey, sealDelivery, sealKeysFor, sealKeyText, sealRecipient } from '../sdk/seal.js';
 
 const mnemonic = 'test test test test test test test test test test test junk';
 const scope = { signingChain: 'qorechain-diana', contract: '0xDfc61ec824205AEF7f2FC80FaD5DBC2Cc987D0a6', id: 3n, unit: 1n };

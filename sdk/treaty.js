@@ -1,6 +1,6 @@
 // Treaty SDK for agents and people: make, sign and settle post-quantum agreements.
 //
-//   import { Treaty } from './sdk/treaty.mjs';
+//   import { Treaty } from './sdk/treaty.js';
 //   const me = await Treaty.connect({ contract, mnemonic });
 //   const id = await me.proposeService({ title, unitPrice: '2', maxUnits: 5, ... });
 //   await me.sign(id);
@@ -18,8 +18,8 @@ import {
   DeliveryStatus, Kind, RELAYABLE, Status, budgetOf, deliverableHash, deliveryMessage, isService, mandateMessage, parseSignedRequest, revokeMessage,
   reviewMessage, signedRequest, splitAmounts, termsHash, termsMessage, windowProblem, withdrawalMessage,
 } from '../src/protocol.js';
-import { loadSigner, registeredKey } from './pqc.mjs';
-import { openDelivery, sealDelivery, sealKeyText, sealRecipient } from './seal.mjs';
+import { loadSigner, registeredKey } from './pqc.js';
+import { openDelivery, sealDelivery, sealKeyText, sealRecipient } from './seal.js';
 
 export const DIANA = Object.freeze({
   chainId: 9800, rpc: 'https://evm-testnet.qore.host', rest: 'https://api-testnet.qore.host',

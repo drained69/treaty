@@ -21,6 +21,7 @@ Owners set limits their agents cannot break, and can switch them off.
 
 ## Contents
 
+1. [Review in 3 minutes](#review-in-3-minutes)
 1. [Overview](#overview)
 2. [Website](#website)
 3. [Live on Diana](#live-on-diana)
@@ -35,6 +36,28 @@ Owners set limits their agents cannot break, and can switch them off.
 12. [Video](#video)
 13. [Status and roadmap](#status-and-roadmap)
 14. [Credits and licence](#credits-and-licence)
+
+## Review in 3 minutes
+
+**What it does.** AI agents (and people) agree on a job, sign the exact terms with post-quantum ML-DSA-87 keys, and a contract on QoreChain holds the budget and pays only for accepted work, inside limits the agent's human owner sets and can revoke.
+
+**What is new.** Agent wallets with spending limits usually keep those limits in the agent's own code, and escrow contracts usually trust whoever holds an ordinary wallet key. Treaty combines, in one contract: multi-party consent where every signature is ML-DSA-87 and checked on chain against the chain's own key registry; an owner mandate the contract enforces (per deal, in total, until a date, with an off switch); budgets that pay per accepted delivery and release themselves if the client goes silent; and deliveries sealed to the client with ML-KEM-1024. A stolen or quantum-broken secp256k1 key can move nothing.
+
+**Why on chain.** The parties are agents that do not trust each other or a server. The contract holds the money and its rules are public; there is no operator in between.
+
+**Who holds the keys.** Nobody holds a privileged key. The contract has no owner, admin, pause or upgrade path. Anyone may relay a signed action, because the ML-DSA-87 signature, not the sender, is what authorises it.
+
+| Check | Evidence |
+| --- | --- |
+| Post-quantum check on every signed action | [`_requirePqcSignature`](https://github.com/drained69/treaty/blob/main/contracts/Treaty.sol#L642-L647): `pqcKeyStatus` (registered key with proof of possession), then `pqcVerify` |
+| Owner limits enforced by the contract | [`_checkMandate`](https://github.com/drained69/treaty/blob/main/contracts/Treaty.sol#L629-L634), checked when the agent signs and when the budget is locked |
+| No classical-key path to money | [`withdraw`](https://github.com/drained69/treaty/blob/main/contracts/Treaty.sol#L496-L507) needs an ML-DSA-87 signature over recipient, destination, amount and nonce |
+| Records on both VMs | [`_record`](https://github.com/drained69/treaty/blob/main/contracts/Treaty.sol#L651) writes every agreement and payment to QoreChain Native in the same transaction |
+| Private deliveries | [`sdk/seal.js`](https://github.com/drained69/treaty/blob/main/sdk/seal.js): QoreSeal sealing, and the client's check against the hash on chain |
+| Real transactions | Two complete 18-transaction runs from the same five accounts: [Treaty #1](https://github.com/drained69/treaty/blob/main/deployments/diana-demo.json) (26 November) and [Treaty #7](https://github.com/drained69/treaty/blob/main/deployments/runs/treaty-7.json) (27 November); four seal keys published ([`seal-keys.json`](https://github.com/drained69/treaty/blob/main/deployments/seal-keys.json)) |
+| Attacks refused on chain | Stolen classical key: `BadPqcSignature` · overspending: `MandateLimitExceeded` · switched-off agent: `AgentNotAuthorized` |
+| Tests | 34 unit tests and 6 end-to-end tests (a real browser, real ML-DSA-87 keys), run by [CI](https://github.com/drained69/treaty/actions/workflows/ci.yml) on every change |
+| Built at the event | Building opened on 4 November; the first commit is from 21 November, and every commit is public. How AI was used: [`AI_USAGE.md`](AI_USAGE.md) |
 
 ## Overview
 
@@ -160,16 +183,16 @@ How a budget is locked from the owner's account:
 2. The agent signs a `MsgExecuteEVM` with the session key over QoreChain's v2 digest, which binds the target, value, call data, the key's own nonce and the gas limit. Its own account relays the message and pays the fee, so a relayer can neither alter nor replay it.
 3. QoreChain checks the permission, the allowed calls and the caps, then runs `Treaty.fund` **from the owner's 0x address**. Treaty accepts a budget locked by the client's owner and checks the mandate, so unused budget is refunded to the owner.
 
-A stolen session key can at most lock budget into treaties the agent already signed with its ML-DSA-87 key, within the caps; that money can only leave per accepted delivery or back to the owner. Act two runs this on Diana: `npm run demo:session` ([examples/smart-account-demo.mjs](examples/smart-account-demo.mjs)) records every transaction in `deployments/diana-smart-account.json`, and the [live page](https://treatyv1.vercel.app/#live) shows it once that record is present.
+A stolen session key can at most lock budget into treaties the agent already signed with its ML-DSA-87 key, within the caps; that money can only leave per accepted delivery or back to the owner. Act two runs this on Diana: `npm run demo:session` ([examples/smart-account-demo.js](examples/smart-account-demo.js)) records every transaction in `deployments/diana-smart-account.json`, and the [live page](https://treatyv1.vercel.app/#live) shows it once that record is present.
 
 ## How Treaty meets the Post-Quantum AI Agents track
 
 | Requirement | How Treaty meets it | Where |
 | --- | --- | --- |
-| The agent's own **scoped EVM window**: transaction, value, duration and target limits | Each agent opens its own window, signed hybrid with its ML-DSA-87 key: the only allowed target is the Treaty contract, with 30 transactions, a capped value (budget plus fees) and 2,500 blocks (about an hour). | `npm run accounts -- windows` ([scripts/accounts.mjs](scripts/accounts.mjs)); live window transactions in [`deployments/diana.json`](deployments/diana.json) |
-| **Smart-account spending rules** | QoreChain's abstractaccount module: the owner links the agent's session key to her own account with a spending rule (only `Treaty.fund` and `Treaty.refund`, QOR per call and per day, `evm` permission only, an expiry) and revokes it in one transaction; the chain checks every `MsgExecuteEVM` before it runs. On top, Treaty's mandate caps each treaty and the total, and is checked again by the contract. | [sdk/smart-account.mjs](sdk/smart-account.mjs), `npm run accounts -- session`, [examples/smart-account-demo.mjs](examples/smart-account-demo.mjs); `setMandate`, `_checkMandate`, `fund` in [contracts/Treaty.sol](contracts/Treaty.sol) |
-| **Authenticated messaging** | Every message an agent sends (accepting terms, delivering work with its hash, accepting or rejecting it, withdrawing) is an ML-DSA-87-signed QoreSign message that the contract verifies with `pqcVerify` against the sender's registered key. Agents can also pass these as signed requests that any wallet relays. | [sdk/treaty.mjs](sdk/treaty.mjs), [src/protocol.js](src/protocol.js) |
-| Post-quantum protection of sensitive actions | `pqcKeyStatus` and `pqcVerify` on every signed action; the stolen-key attack is shown live. | [contracts/Treaty.sol](contracts/Treaty.sol), [examples/agents-demo.mjs](examples/agents-demo.mjs) |
+| The agent's own **scoped EVM window**: transaction, value, duration and target limits | Each agent opens its own window, signed hybrid with its ML-DSA-87 key: the only allowed target is the Treaty contract, with 30 transactions, a capped value (budget plus fees) and 2,500 blocks (about an hour). | `npm run accounts -- windows` ([scripts/accounts.js](scripts/accounts.js)); live window transactions in [`deployments/diana.json`](deployments/diana.json) |
+| **Smart-account spending rules** | QoreChain's abstractaccount module: the owner links the agent's session key to her own account with a spending rule (only `Treaty.fund` and `Treaty.refund`, QOR per call and per day, `evm` permission only, an expiry) and revokes it in one transaction; the chain checks every `MsgExecuteEVM` before it runs. On top, Treaty's mandate caps each treaty and the total, and is checked again by the contract. | [sdk/smart-account.js](sdk/smart-account.js), `npm run accounts -- session`, [examples/smart-account-demo.js](examples/smart-account-demo.js); `setMandate`, `_checkMandate`, `fund` in [contracts/Treaty.sol](contracts/Treaty.sol) |
+| **Authenticated messaging** | Every message an agent sends (accepting terms, delivering work with its hash, accepting or rejecting it, withdrawing) is an ML-DSA-87-signed QoreSign message that the contract verifies with `pqcVerify` against the sender's registered key. Agents can also pass these as signed requests that any wallet relays. | [sdk/treaty.js](sdk/treaty.js), [src/protocol.js](src/protocol.js) |
+| Post-quantum protection of sensitive actions | `pqcKeyStatus` and `pqcVerify` on every signed action; the stolen-key attack is shown live. | [contracts/Treaty.sol](contracts/Treaty.sol), [examples/agents-demo.js](examples/agents-demo.js) |
 
 Treaty also uses the **Cross-VM** bridge (atomic EVM-to-Native receipts), **QoreSeal** for private deliveries, **QoreX message signing** (QoreSign message-signing-v1) and **hybrid Native transactions** (secp256k1 + ML-DSA-87) for every key registration, window and smart-account change.
 
@@ -181,16 +204,16 @@ Treaty also uses the **Cross-VM** bridge (atomic EVM-to-Native receipts), **Qore
 | --- | --- |
 | [`contracts/Treaty.sol`](contracts/Treaty.sol) | The contract: treaties, signatures, budgets, deliveries, mandates, withdrawals, Native receipts. No owner, pause or upgrade. |
 | [`src/protocol.js`](src/protocol.js) | Byte-exact builders for every signed message, hash and commitment, shared by the app, SDK, tools and tests. |
-| [`sdk/treaty.mjs`](sdk/treaty.mjs), [`sdk/pqc.mjs`](sdk/pqc.mjs) | The SDK for agents, and ML-DSA-87 key loading and signing with `@qorechain/sdk`. |
-| [`sdk/seal.mjs`](sdk/seal.mjs) | Private deliveries: QoreSeal (ML-KEM-1024 + X25519) keys, sealing work to the client and opening it against the hash on chain. |
-| [`sdk/smart-account.mjs`](sdk/smart-account.mjs), [`sdk/native.mjs`](sdk/native.mjs) | Smart-account sessions on QoreChain's abstractaccount module (link with a spending rule, `MsgExecuteEVM` from the owner's account, revoke, read back), and hybrid Native-lane broadcasting. |
-| [`scripts/treaty.mjs`](scripts/treaty.mjs) | The signing tool for people (`npm run pq`). |
-| [`scripts/accounts.mjs`](scripts/accounts.mjs) | Diana accounts: create, register ML-DSA-87 keys, deploy, open scoped windows, publish seal keys, link and revoke smart-account sessions (`npm run accounts`). |
-| [`examples/agents-demo.mjs`](examples/agents-demo.mjs) | The agents demo, locally or on Diana (`npm run demo`). |
-| [`examples/smart-account-demo.mjs`](examples/smart-account-demo.mjs) | Act two on Diana: the owner's money under QoreChain's own spending rules (`npm run demo:session`). |
+| [`sdk/treaty.js`](sdk/treaty.js), [`sdk/pqc.js`](sdk/pqc.js) | The SDK for agents, and ML-DSA-87 key loading and signing with `@qorechain/sdk`. |
+| [`sdk/seal.js`](sdk/seal.js) | Private deliveries: QoreSeal (ML-KEM-1024 + X25519) keys, sealing work to the client and opening it against the hash on chain. |
+| [`sdk/smart-account.js`](sdk/smart-account.js), [`sdk/native.js`](sdk/native.js) | Smart-account sessions on QoreChain's abstractaccount module (link with a spending rule, `MsgExecuteEVM` from the owner's account, revoke, read back), and hybrid Native-lane broadcasting. |
+| [`scripts/treaty.js`](scripts/treaty.js) | The signing tool for people (`npm run pq`). |
+| [`scripts/accounts.js`](scripts/accounts.js) | Diana accounts: create, register ML-DSA-87 keys, deploy, open scoped windows, publish seal keys, link and revoke smart-account sessions (`npm run accounts`). |
+| [`examples/agents-demo.js`](examples/agents-demo.js) | The agents demo, locally or on Diana (`npm run demo`). |
+| [`examples/smart-account-demo.js`](examples/smart-account-demo.js) | Act two on Diana: the owner's money under QoreChain's own spending rules (`npm run demo:session`). |
 | [`src/`](src) | The website and app: `app.js` (pages), `chain.js` (reads, writes, verification), `qorex.js` (QoreX signing), `story.js` (home and live pages). |
-| [`api/native.js`](api/native.js), [`server/native.mjs`](server/native.mjs) | Read-only Native REST routes the browser cannot call directly (receipts, EVM windows, smart accounts, EVM-to-Cosmos hash). |
-| [`scripts/local-diana.mjs`](scripts/local-diana.mjs) | A local Diana stand-in whose `pqcVerify` accepts a signature only after real ML-DSA-87 verification. |
+| [`api/native.js`](api/native.js), [`server/native.js`](server/native.js) | Read-only Native REST routes the browser cannot call directly (receipts, EVM windows, smart accounts, EVM-to-Cosmos hash). |
+| [`scripts/local-diana.js`](scripts/local-diana.js) | A local Diana stand-in whose `pqcVerify` accepts a signature only after real ML-DSA-87 verification. |
 | [`test/`](test) | Contract tests, smart-account, QoreSeal and QoreX tests, Native route tests, and end-to-end tests. |
 | [`deployments/`](deployments) | Records of the Diana deployment and the live run. |
 
@@ -297,7 +320,7 @@ The repository is ready for **Vercel**: import it, keep the detected settings, a
 ### For agents
 
 ```js
-import { Treaty } from './sdk/treaty.mjs';
+import { Treaty } from './sdk/treaty.js';
 
 const agent = await Treaty.connect({ contract, mnemonic });        // or privateKey + recoveryCode
 const id = await agent.proposeService({
@@ -316,11 +339,11 @@ await provider.withdraw('all');
 
 Every signed action rebuilds the exact bytes from the on-chain terms and refuses to sign if the contract would check anything else; it checks the local key against the chain's registry and the account's EVM window before sending. `{ relay: true }` returns a signed request any wallet can submit, and `treaty.relay(request)` submits one. Owners: `agent.approveOwner(limits)` returns the agent's consent, `owner.setMandate({ agent, ...limits, agentSignature })` sets the limits, `owner.revoke(agent)` switches it off. `treaty.explorerLink(hash)` returns the explorer link for a transaction.
 
-Spending the owner's money through a smart-account session ([sdk/smart-account.mjs](sdk/smart-account.mjs)):
+Spending the owner's money through a smart-account session ([sdk/smart-account.js](sdk/smart-account.js)):
 
 ```js
-import { broadcast } from './sdk/native.mjs';
-import { OwnerSession, linkSessionMsgs, revokeSessionMsg, sessionKey } from './sdk/smart-account.mjs';
+import { broadcast } from './sdk/native.js';
+import { OwnerSession, linkSessionMsgs, revokeSessionMsg, sessionKey } from './sdk/smart-account.js';
 
 // The owner, once: link the agent's session key under a rule the chain enforces.
 const session = sessionKey(agentSessionSecret);           // ed25519; holds no money
@@ -340,7 +363,7 @@ await broadcast(ownerAccount, [revokeSessionMsg({ owner: ownerAccount.cosmos, se
 
 ### For people
 
-In the web app, people can sign with the **QoreX** wallet: accept terms, deliver a file (only its hash goes on chain), accept or reject a delivery, withdraw, or switch an agent off. Any connected EVM wallet then sends the transaction. The app finds QoreX with the official `@qorechain/qorex-types` helpers and offers QoreX signing only to a build that announces message signing: today's QoreX refuses `signArbitrary`, so the app says so and points to the signing tool, whose signed requests any wallet can submit in the app. `test/qorex.test.mjs` runs this against the official QoreX mock (`@qorechain/qorex-wallet-mock`): today's behaviour, and the planned message signing, whose signatures verify with `@qorechain/pqc` over exactly the bytes the contract checks.
+In the web app, people can sign with the **QoreX** wallet: accept terms, deliver a file (only its hash goes on chain), accept or reject a delivery, withdraw, or switch an agent off. Any connected EVM wallet then sends the transaction. The app finds QoreX with the official `@qorechain/qorex-types` helpers and offers QoreX signing only to a build that announces message signing: today's QoreX refuses `signArbitrary`, so the app says so and points to the signing tool, whose signed requests any wallet can submit in the app. `test/qorex.test.js` runs this against the official QoreX mock (`@qorechain/qorex-wallet-mock`): today's behaviour, and the planned message signing, whose signatures verify with `@qorechain/pqc` over exactly the bytes the contract checks.
 
 The signing tool has every action, with keys in `.env` (`QORE_MNEMONIC`, or `PRIVATE_KEY` with `QORE_PQC_RECOVERY_CODE`):
 
@@ -391,7 +414,7 @@ The three-minute demo: **[watch it on YouTube ↗](https://youtu.be/3yRMDFFxSx0)
 Built during Build Before Q-Day (November 2026). It uses the QoreChain kits and examples, with thanks:
 
 - [`@qorechain/sdk`](https://www.npmjs.com/package/@qorechain/sdk), [`@qorechain/evm`](https://www.npmjs.com/package/@qorechain/evm) and [`@qorechain/qoresign`](https://www.npmjs.com/package/@qorechain/qoresign): ML-DSA-87 keys and signing, PQC and KEM key registration, EVM windows, QoreSign message signing.
-- [`@qorechain/qoreseal`](https://www.npmjs.com/package/@qorechain/qoreseal): ML-KEM-1024 encryption of deliveries to the client ([sdk/seal.mjs](sdk/seal.mjs)).
+- [`@qorechain/qoreseal`](https://www.npmjs.com/package/@qorechain/qoreseal): ML-KEM-1024 encryption of deliveries to the client ([sdk/seal.js](sdk/seal.js)).
 - [`@qorechain/qorex-types`](https://www.npmjs.com/package/@qorechain/qorex-types) and [`@qorechain/qorex-wallet-mock`](https://www.npmjs.com/package/@qorechain/qorex-wallet-mock): finding QoreX in the browser, and testing against its official test double.
 - [`@qorechain/pqc`](https://www.npmjs.com/package/@qorechain/pqc): SHAKE-256 for seal keys, and an independent ML-DSA-87 check of the SDK's and QoreX's signatures.
 - The [Build Before Q-Day workshops](https://github.com/qorechain/build-before-qday): the Cross-VM bridge interface and the governance-approved Native receipt book (workshop 3), the `pqcVerify` vault pattern and the window script (workshop 2), the spend-capped agent idea (workshop 2).

@@ -25,7 +25,7 @@ import {
 } from '@qorechain/sdk';
 import { bech32 } from '@scure/base';
 import { bytesToHex, encodeFunctionData, getAddress, hexToBytes, isAddress, toFunctionSelector } from 'viem';
-import { NET, broadcast, lookupTx } from './native.mjs';
+import { NET, broadcast, lookupTx } from './native.js';
 
 const artifact = JSON.parse(await readFile(new URL('../artifacts/Treaty.json', import.meta.url)));
 const { abi } = artifact;
